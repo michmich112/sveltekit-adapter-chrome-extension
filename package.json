@@ -1,5 +1,5 @@
 {
-  "name": "svektekit-adapter-chrome-extension",
+  "name": "sveltekit-adapter-chrome-extension",
   "version": "1.0.0-next.1",
   "repository": {
     "type": "git",
