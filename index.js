@@ -9,7 +9,7 @@ import cheerio from 'cheerio';
 const pipe = promisify(pipeline);
 
 /** @type {import('.')} */
-export default function ({ pages = 'build', assets = pages, fallback, precompress = false } = {}) {
+export default function({ pages = 'build', assets = pages, fallback, precompress = false } = {}) {
   return {
     name: 'sveltekit-adapter-chrome-extension',
 
@@ -80,15 +80,17 @@ async function removeInlineScripts(directory, log) {
     .forEach((file) => {
       const f = readFileSync(file);
       const $ = cheerio.load(f.toString());
-      const innerScript = $('script[type="module"]').get()[0].children[0].data;
+      const node = $('script[type="module"]').get()[0];
+      const attribs = Object.keys(node.attribs).reduce((a, c) => a + `${c}="${node.attribs[c]}" `, "");
+      const innerScript = node.children[0].data;
       const fullTag = $('script[type="module"]').toString();
       //get new filename
       const fn = `/script-${hash(innerScript)}}.js`;
       //remove from orig html file and replace with new script tag
-      const newHtml = f.toString().replace(fullTag, `<script type="module" src="${fn}"></script>`);
+      const newHtml = f.toString().replace(fullTag, `<script ${attribs} src="${fn}"></script>`);
       writeFileSync(file, newHtml);
       log(`rewrote ${file}`);
-      
+
       const p = `${directory}${fn}`;
       writeFileSync(p, innerScript);
       log(`wrote ${p}`);
