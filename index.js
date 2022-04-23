@@ -1,4 +1,4 @@
-import { createReadStream, createWriteStream, readFileSync, statSync, writeFileSync } from 'fs';
+import { createReadStream, createWriteStream, readFileSync, statSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { pipeline } from 'stream';
 import glob from 'tiny-glob';
@@ -46,7 +46,9 @@ export default function({ pages = 'build', assets = pages, fallback, precompress
       }
 
       /* extension */
-      await removeInlineScripts(assets, builder.log.minor);
+      await removeInlineScripts(assets, builder.log);
+
+      await removeAppManifest(assets, builder.log);
     }
   };
 }
@@ -68,7 +70,28 @@ function hash(value) {
   return (hash >>> 0).toString(36);
 }
 
+async function removeAppManifest(directory, log) {
+  log.info("Removing App Manifest");
+  const files = await glob('**/app/manifest.json', {
+    cwd: directory,
+    dot: true,
+    absolute: true,
+    filesOnly: true
+  });
+
+  files.forEach(path => {
+    try {
+      unlinkSync(path);
+      log.success(`Removed app manifest file at path: ${path}`);
+    } catch (err) {
+      log.warn(`Error removing app manifest file at path: ${path}. You may have to delete it manually before submitting you extension.\nError: ${err}`);
+    }
+  });
+}
+
+
 async function removeInlineScripts(directory, log) {
+  log.info("Removing Inline Scripts")
   const files = await glob('**/*.{html}', {
     cwd: directory,
     dot: true,
@@ -78,6 +101,7 @@ async function removeInlineScripts(directory, log) {
 
   files.map(f => join(directory, f))
     .forEach((file) => {
+      log.minor(`file: ${file}`);
       const f = readFileSync(file);
       const $ = cheerio.load(f.toString());
       const node = $('script[type="module"]').get()[0];
@@ -89,11 +113,11 @@ async function removeInlineScripts(directory, log) {
       //remove from orig html file and replace with new script tag
       const newHtml = f.toString().replace(fullTag, `<script ${attribs} src="${fn}"></script>`);
       writeFileSync(file, newHtml);
-      log(`rewrote ${file}`);
+      log.minor(`Rewrote ${file}`);
 
       const p = `${directory}${fn}`;
       writeFileSync(p, innerScript);
-      log(`wrote ${p}`);
+      log.success(`Inline script extracted and saved at: ${p}`);
     });
 }
 /**
