@@ -4,12 +4,12 @@ import { pipeline } from 'stream';
 import glob from 'tiny-glob';
 import { promisify } from 'util';
 import zlib from 'zlib';
-import cheerio from 'cheerio';
+import { load } from 'cheerio';
 
 const pipe = promisify(pipeline);
 
 /** @type {import('.')} */
-export default function({ pages = 'build', assets = pages, fallback, precompress = false } = {}) {
+export default function ({ pages = 'build', assets = pages, fallback, precompress = false } = {}) {
   return {
     name: 'sveltekit-adapter-chrome-extension',
 
@@ -20,11 +20,7 @@ export default function({ pages = 'build', assets = pages, fallback, precompress
       builder.writeStatic(assets);
       builder.writeClient(assets);
 
-      await builder.prerender({
-        fallback,
-        all: !fallback,
-        dest: pages
-      });
+      builder.writePrerendered(pages, { fallback });
 
       if (precompress) {
         if (pages === assets) {
@@ -103,8 +99,9 @@ async function removeInlineScripts(directory, log) {
     .forEach((file) => {
       log.minor(`file: ${file}`);
       const f = readFileSync(file);
-      const $ = cheerio.load(f.toString());
+      const $ = load(f.toString());
       const node = $('script[type="module"]').get()[0];
+      if (!node) return;
       const attribs = Object.keys(node.attribs).reduce((a, c) => a + `${c}="${node.attribs[c]}" `, "");
       const innerScript = node.children[0].data;
       const fullTag = $('script[type="module"]').toString();
