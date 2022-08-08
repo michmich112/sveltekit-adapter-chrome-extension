@@ -68,7 +68,7 @@ function hash(value) {
   return (hash >>> 0).toString(36);
 }
 
-async function removeAppManifest(directory, log) {
+async function removeAppManifest(directory, appDir, log) {
   log("Removing App Manifest");
   const files = await glob(`**/${appDir}/manifest.json`, {
     cwd: directory,
