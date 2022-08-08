@@ -17,7 +17,6 @@ export default function ({ pages = 'build', assets = pages, fallback, precompres
       builder.rimraf(assets);
       builder.rimraf(pages);
 
-      builder.writeStatic(assets);
       builder.writeClient(assets);
 
       builder.writePrerendered(pages, { fallback });
