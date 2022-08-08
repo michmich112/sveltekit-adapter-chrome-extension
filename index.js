@@ -43,7 +43,7 @@ export default function ({ pages = 'build', assets = pages, fallback, precompres
       /* extension */
       await removeInlineScripts(assets, builder.log);
 
-      await removeAppManifest(assets, builder.log);
+      await removeAppManifest(assets, builder.config.kit.appDir,builder.log);
 
       // operation required since generated app manifest will overwrite the static extension manifest.json
       reWriteExtensionManifest(assets, builder);
@@ -69,8 +69,8 @@ function hash(value) {
 }
 
 async function removeAppManifest(directory, log) {
-  log.info("Removing App Manifest");
-  const files = await glob('**/app/manifest.json', {
+  log("Removing App Manifest");
+  const files = await glob(`**/${appDir}/manifest.json`, {
     cwd: directory,
     dot: true,
     absolute: true,
@@ -89,7 +89,7 @@ async function removeAppManifest(directory, log) {
 
 
 async function removeInlineScripts(directory, log) {
-  log.info("Removing Inline Scripts")
+  log("Removing Inline Scripts")
   const files = await glob('**/*.{html}', {
     cwd: directory,
     dot: true,
