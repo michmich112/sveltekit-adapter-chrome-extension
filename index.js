@@ -1,4 +1,4 @@
-import { createReadStream, createWriteStream, readFileSync, statSync, writeFileSync, unlinkSync } from 'fs';
+import { createReadStream, createWriteStream, existsSync, readFileSync, statSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { pipeline } from 'stream';
 import glob from 'tiny-glob';
@@ -17,7 +17,6 @@ export default function ({ pages = 'build', assets = pages, fallback, precompres
       builder.rimraf(assets);
       builder.rimraf(pages);
 
-      builder.writeStatic(assets);
       builder.writeClient(assets);
 
       builder.writePrerendered(pages, { fallback });
@@ -44,7 +43,10 @@ export default function ({ pages = 'build', assets = pages, fallback, precompres
       /* extension */
       await removeInlineScripts(assets, builder.log);
 
-      await removeAppManifest(assets, builder.log);
+      await removeAppManifest(assets, builder.config.kit.appDir,builder.log);
+
+      // operation required since generated app manifest will overwrite the static extension manifest.json
+      reWriteExtensionManifest(assets, builder);
     }
   };
 }
@@ -67,8 +69,8 @@ function hash(value) {
 }
 
 async function removeAppManifest(directory, log) {
-  log.info("Removing App Manifest");
-  const files = await glob('**/app/manifest.json', {
+  log("Removing App Manifest");
+  const files = await glob(`**/${appDir}/manifest.json`, {
     cwd: directory,
     dot: true,
     absolute: true,
@@ -87,7 +89,7 @@ async function removeAppManifest(directory, log) {
 
 
 async function removeInlineScripts(directory, log) {
-  log.info("Removing Inline Scripts")
+  log("Removing Inline Scripts")
   const files = await glob('**/*.{html}', {
     cwd: directory,
     dot: true,
@@ -117,6 +119,21 @@ async function removeInlineScripts(directory, log) {
       log.success(`Inline script extracted and saved at: ${p}`);
     });
 }
+
+function reWriteExtensionManifest(directory, builder) {
+  const {log, getStaticDirectory, copy} = builder
+  log("Re-Writing Exention Manifest");
+  const sourceFilePath = join(getStaticDirectory(), 'manifest.json');
+  if(existsSync(sourceFilePath)) {
+    log.info("Extension manifest found");
+    const res = copy(sourceFilePath, join(directory, 'manifest.json'));
+    log.success("Successfully re wrote extension manifest");
+  }else{
+    log.error("Extesion manifest not found. Make sure you've added your extension manifest in your statics directory with the name manifest.json");
+  }
+}
+
+
 /**
  * @param {string} directory
  */
