@@ -1,6 +1,6 @@
 {
   "name": "sveltekit-adapter-chrome-extension",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/michmich112/sveltekit-adapter-chrome-extension"

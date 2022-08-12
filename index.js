@@ -108,7 +108,7 @@ async function removeInlineScripts(directory, log) {
       const innerScript = node.children[0].data;
       const fullTag = $('script[type="module"]').toString();
       //get new filename
-      const fn = `/script-${hash(innerScript)}}.js`;
+      const fn = `/script-${hash(innerScript)}.js`;
       //remove from orig html file and replace with new script tag
       const newHtml = f.toString().replace(fullTag, `<script ${attribs} src="${fn}"></script>`);
       writeFileSync(file, newHtml);
