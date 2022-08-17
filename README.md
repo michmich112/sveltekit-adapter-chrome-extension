@@ -10,22 +10,22 @@ Install with `npm i -D sveltekit-adapter-chrome-extension`, then add the adapter
 
 ```js
 // svelte.config.js
-import adapter from 'sveltekit-adapter-chrome-extension';
+import adapter from "sveltekit-adapter-chrome-extension";
 
 export default {
-	kit: {
-		adapter: adapter({
-			// default options are shown
-			pages: 'build',
-			assets: 'build',
-			fallback: null,
-			precompress: false
-		})
-	}
+  kit: {
+    adapter: adapter({
+      // default options are shown
+      pages: "build",
+      assets: "build",
+      fallback: null,
+      precompress: false,
+    }),
+    appDir: "app",
+    prerender: { default: true },
+  },
 };
 ```
-
-Unless you're in [SPA mode](#spa-mode), the adapter will attempt to prerender every page of your app, regardless of whether the [`prerender`](https://kit.svelte.dev/docs#page-options-prerender) option is set.
 
 ## Options
 
@@ -55,14 +55,14 @@ The fallback page is a blank HTML page that loads your SvelteKit app and navigat
 
 ```js
 // svelte.config.js
-import adapter from '@sveltejs/adapter-static';
+import adapter from "@sveltejs/adapter-static";
 
 export default {
-	kit: {
-		adapter: adapter({
-			fallback: '200.html'
-		})
-	}
+  kit: {
+    adapter: adapter({
+      fallback: "200.html",
+    }),
+  },
 };
 ```
 
