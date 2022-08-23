@@ -118,7 +118,10 @@ async function removeInlineScripts(directory, log) {
       const f = readFileSync(file);
       const $ = load(f.toString());
       const node = $('script[type="module"]').get()[0];
+      
       if (!node) return;
+      if (Object.keys(node.attribs).includes("src")) return; // if there is a src, it's not an inline script
+
       const attribs = Object.keys(node.attribs).reduce(
         (a, c) => a + `${c}="${node.attribs[c]}" `,
         ""
