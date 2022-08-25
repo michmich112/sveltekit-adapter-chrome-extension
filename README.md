@@ -20,6 +20,7 @@ export default {
       assets: "build",
       fallback: null,
       precompress: false,
+      manifest: "manifest.json"
     }),
     appDir: "app",
     prerender: { default: true },
@@ -44,6 +45,11 @@ Specify a fallback page for SPA mode, e.g. `index.html` or `200.html` or `404.ht
 ### precompress
 
 If `true`, precompresses files with brotli and gzip. This will generate `.br` and `.gz` files.
+
+### manifest
+
+Specify manifest file name if you want different manifests for different target platforms, e.g. `chrome_manifest.json`, `firefox_manifest.json`.
+This file name must match one that is present in the `static` directory (the dir containing your static files). The selected target file will be renamed to `manifest.json` in the build directory, and all other `.json` files with `manifest` in the name won't be copied.
 
 ## SPA mode
 
