@@ -22,6 +22,7 @@ export default function ({
   assets = pages,
   fallback,
   precompress = false,
+  manifest = "manifest.json"
 } = {}) {
   return {
     name: "sveltekit-adapter-chrome-extension",
@@ -57,9 +58,10 @@ export default function ({
       await removeInlineScripts(assets, builder.log);
 
       await removeAppManifest(assets, builder.config.kit.appDir, builder.log);
+      await removeAppManifest('.', assets, builder.log);
 
       // operation required since generated app manifest will overwrite the static extension manifest.json
-      reWriteExtensionManifest(assets, builder);
+      reWriteExtensionManifest(assets, manifest, builder);
     },
   };
 }
@@ -83,13 +85,13 @@ function hash(value) {
 
 async function removeAppManifest(directory, appDir, log) {
   log("Removing App Manifest");
-  const files = await glob(`**/${appDir}/manifest.json`, {
+  const files = await glob(`**/${appDir}/*manifest*.json`, {
     cwd: directory,
     dot: true,
     absolute: true,
     filesOnly: true,
   });
-
+  
   files.forEach((path) => {
     try {
       unlinkSync(path);
@@ -143,17 +145,17 @@ async function removeInlineScripts(directory, log) {
     });
 }
 
-function reWriteExtensionManifest(directory, builder) {
+function reWriteExtensionManifest(directory, manifest, builder) {
   const { log, getStaticDirectory, copy } = builder;
   log("Re-writing extension manifest");
-  const sourceFilePath = join(getStaticDirectory(), "manifest.json");
+  const sourceFilePath = join(getStaticDirectory(), manifest);
   if (existsSync(sourceFilePath)) {
     log.info("Extension manifest found");
     const res = copy(sourceFilePath, join(directory, "manifest.json"));
     log.success("Successfully re-wrote extension manifest");
   } else {
     log.error(
-      "Extesion manifest not found. Make sure you've added your extension manifest in your statics directory with the name manifest.json"
+      `Extension manifest not found. Make sure you've added your extension manifest in your statics directory with the name ${manifest}`
     );
   }
 }
