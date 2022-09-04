@@ -23,7 +23,6 @@ export default {
       manifest: "manifest.json"
     }),
     appDir: "app",
-    prerender: { default: true },
   },
 };
 ```
