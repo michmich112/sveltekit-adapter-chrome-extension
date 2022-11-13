@@ -22,14 +22,17 @@ export default function ({
   assets = pages,
   fallback,
   precompress = false,
-  manifest = "manifest.json"
+  manifest = "manifest.json",
+  emptyOutDir = true
 } = {}) {
   return {
     name: "sveltekit-adapter-chrome-extension",
 
     async adapt(builder) {
-      builder.rimraf(assets);
-      builder.rimraf(pages);
+      if (emptyOutDir) {
+        builder.rimraf(assets);
+        builder.rimraf(pages);
+      }
 
       builder.writeClient(assets);
 
