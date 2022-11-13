@@ -6,6 +6,7 @@ interface AdapterOptions {
 	fallback?: string;
 	precompress?: boolean;
 	manifest?: string;
+	emptyOutDir?: boolean;
 }
 
 declare function plugin(options?: AdapterOptions): Adapter;
