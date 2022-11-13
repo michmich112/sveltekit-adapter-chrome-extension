@@ -20,7 +20,8 @@ export default {
       assets: "build",
       fallback: null,
       precompress: false,
-      manifest: "manifest.json"
+      manifest: "manifest.json",
+      emptyOutDir: true,
     }),
     appDir: "app",
   },
@@ -49,6 +50,12 @@ If `true`, precompresses files with brotli and gzip. This will generate `.br` an
 
 Specify manifest file name if you want different manifests for different target platforms, e.g. `chrome_manifest.json`, `firefox_manifest.json`.
 This file name must match one that is present in the `static` directory (the dir containing your static files). The selected target file will be renamed to `manifest.json` in the build directory, and all other `.json` files with `manifest` in the name won't be copied.
+
+
+### emptyOutDir
+
+Specify if the output directory should automatically be emptied when building the project. Defaults to `true`.
+Turn to `false` if you use alternate watch commands for which emptying the output directory may create conflicts. 
 
 ## SPA mode
 
