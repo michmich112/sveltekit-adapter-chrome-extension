@@ -23,7 +23,7 @@ export default function ({
   fallback,
   precompress = false,
   manifest = "manifest.json",
-  emptyOutDir = true
+  emptyOutDir = true,
 } = {}) {
   return {
     name: "sveltekit-adapter-chrome-extension",
@@ -61,7 +61,7 @@ export default function ({
       await removeInlineScripts(assets, builder.log);
 
       await removeAppManifest(assets, builder.config.kit.appDir, builder.log);
-      await removeAppManifest('.', assets, builder.log);
+      await removeAppManifest(".", assets, builder.log);
 
       // operation required since generated app manifest will overwrite the static extension manifest.json
       reWriteExtensionManifest(assets, manifest, builder);
@@ -94,7 +94,7 @@ async function removeAppManifest(directory, appDir, log) {
     absolute: true,
     filesOnly: true,
   });
-  
+
   files.forEach((path) => {
     try {
       unlinkSync(path);
@@ -123,7 +123,7 @@ async function removeInlineScripts(directory, log) {
       const f = readFileSync(file);
       const $ = load(f.toString());
       const node = $('script[type="module"]').get()[0];
-      
+
       if (!node) return;
       if (Object.keys(node.attribs).includes("src")) return; // if there is a src, it's not an inline script
 
@@ -149,9 +149,14 @@ async function removeInlineScripts(directory, log) {
 }
 
 function reWriteExtensionManifest(directory, manifest, builder) {
-  const { log, getStaticDirectory, copy } = builder;
+  const { log, getStaticDirectory, getClientDirectory, copy } = builder;
   log("Re-writing extension manifest");
-  const sourceFilePath = join(getStaticDirectory(), manifest);
+  let sourceFilePath;
+  if (typeof getStaticDirectory !== "undefined") {
+    sourceFilePath = join(getStaticDirectory(), manifest);
+  } else {
+    sourceFilePath = join(getClientDirectory(), manifest);
+  }
   if (existsSync(sourceFilePath)) {
     log.info("Extension manifest found");
     const res = copy(sourceFilePath, join(directory, "manifest.json"));
