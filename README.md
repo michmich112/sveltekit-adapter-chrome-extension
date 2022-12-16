@@ -4,6 +4,8 @@
 
 > Based on [@sveltekit/adapter-static](https://github.com/sveltejs/kit/blob/master/packages/adapter-static). Credit goes to [these people](https://github.com/sveltejs/kit/graphs/contributors) for their hard work to make Svelte so great
 
+> 🚧 If you are using SvelteKit v1.0.0+, make sure to set your `prerendered=true` for every page reference by your extension so SvelteKit generates the HTML files.
+
 ## Usage
 
 Install with `npm i -D sveltekit-adapter-chrome-extension`, then add the adapter to your `svelte.config.js`:
@@ -56,55 +58,6 @@ This file name must match one that is present in the `static` directory (the dir
 
 Specify if the output directory should automatically be emptied when building the project. Defaults to `true`.
 Turn to `false` if you use alternate watch commands for which emptying the output directory may create conflicts. 
-
-## SPA mode
-
-You can use `adapter-static` to create a single-page app or SPA by specifying a **fallback page**.
-
-> In most situations this is not recommended: it harms SEO, tends to slow down perceived performance, and makes your app inaccessible to users if JavaScript fails or is disabled (which happens [more often than you probably think](https://kryogenix.org/code/browser/everyonehasjs.html)).
-
-The fallback page is a blank HTML page that loads your SvelteKit app and navigates to the correct route. For example [Surge](https://surge.sh/help/adding-a-200-page-for-client-side-routing), a static web host, lets you add a `200.html` file that will handle any requests that don't otherwise match. We can create that file like so:
-
-```js
-// svelte.config.js
-import adapter from "@sveltejs/adapter-static";
-
-export default {
-  kit: {
-    adapter: adapter({
-      fallback: "200.html",
-    }),
-  },
-};
-```
-
-When operating in SPA mode, only pages that have the [`prerender`](https://kit.svelte.dev/docs#page-options-prerender) option set will be prerendered.
-
-## GitHub Pages
-
-When building for GitHub Pages, make sure to update [`paths.base`](https://kit.svelte.dev/docs#configuration-paths) to match your repo name, since the site will be served from https://your-username.github.io/your-repo-name rather than from the root.
-
-You will have to prevent GitHub's provided Jekyll from managing your site by putting an empty `.nojekyll` file in your static folder. If you do not want to disable Jekyll, change the kit's `appDir` configuration option to `'app_'` or anything not starting with an underscore. For more information, see GitHub's [Jekyll documentation](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/about-github-pages-and-jekyll#configuring-jekyll-in-your-github-pages-site).
-
-A config for GitHub Pages might look like the following:
-
-```js
-const dev = process.env.NODE_ENV === 'development';
-
-/** @type {import('@sveltejs/kit').Config} */
-const config = {
-	...
-	kit: {
-		...
-		paths: {
-			base: dev ? '' : '/your-repo-name',
-		},
-		// If you are not using a .nojekyll file, change your appDir to something not starting with an underscore.
-		// For example, instead of '_app', use 'app_', 'internal', etc.
-		appDir: 'internal',
-	}
-};
-```
 
 ## License
 
