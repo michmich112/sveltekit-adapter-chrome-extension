@@ -23,7 +23,10 @@
     "test": "uvu test test.js"
   },
   "dependencies": {
-    "tiny-glob": "^0.2.9",
-    "cheerio": "^1.0.0-rc.10"
+    "cheerio": "^1.0.0-rc.10",
+    "tiny-glob": "^0.2.9"
+  },
+  "peerDependencies": {
+    "@sveltejs/adapter-static": "^2.0.1"
   }
 }
