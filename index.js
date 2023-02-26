@@ -1,4 +1,4 @@
-import staticAdapter from '@sveltejs/adapter-static';
+import staticAdapter from "@sveltejs/adapter-static";
 import { load } from "cheerio";
 import {
   createReadStream,
@@ -18,7 +18,7 @@ import zlib from "zlib";
 const pipe = promisify(pipeline);
 
 /** @type {import('.')} */
-export default function (options) {
+export default function(options) {
   return {
     name: "sveltekit-adapter-chrome-extension",
 
@@ -94,7 +94,7 @@ async function removeInlineScripts(directory, log) {
       log.minor(`file: ${file}`);
       const f = readFileSync(file);
       const $ = load(f.toString());
-      const node = $('script[type="module"]').get()[0];
+      const node = $("script").get()[0];
 
       if (!node) return;
       if (Object.keys(node.attribs).includes("src")) return; // if there is a src, it's not an inline script
@@ -104,7 +104,7 @@ async function removeInlineScripts(directory, log) {
         ""
       );
       const innerScript = node.children[0].data;
-      const fullTag = $('script[type="module"]').toString();
+      const fullTag = $("script").toString();
       //get new filename
       const fn = `/script-${hash(innerScript)}.js`;
       //remove from orig html file and replace with new script tag
@@ -166,13 +166,13 @@ async function compress_file(file, format = "gz") {
   const compress =
     format == "br"
       ? zlib.createBrotliCompress({
-          params: {
-            [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
-            [zlib.constants.BROTLI_PARAM_QUALITY]:
-              zlib.constants.BROTLI_MAX_QUALITY,
-            [zlib.constants.BROTLI_PARAM_SIZE_HINT]: statSync(file).size,
-          },
-        })
+        params: {
+          [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+          [zlib.constants.BROTLI_PARAM_QUALITY]:
+            zlib.constants.BROTLI_MAX_QUALITY,
+          [zlib.constants.BROTLI_PARAM_SIZE_HINT]: statSync(file).size,
+        },
+      })
       : zlib.createGzip({ level: zlib.constants.Z_BEST_COMPRESSION });
 
   const source = createReadStream(file);
