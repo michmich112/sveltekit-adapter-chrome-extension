@@ -4,7 +4,7 @@
 
 > Based on [@sveltekit/adapter-static](https://github.com/sveltejs/kit/blob/master/packages/adapter-static). Credit goes to [these people](https://github.com/sveltejs/kit/graphs/contributors) for their hard work to make Svelte so great
 
-> 🚧 If you are using SvelteKit v1.0.0+, make sure to set your `prerender=true` for every page reference by your extension so SvelteKit generates the HTML files.
+> 🚧 If you are using SvelteKit v1.0.0+, make sure to set your `prerender=true` for every page reference by your extension so SvelteKit generates the HTML files. (c.f. Issue #27)
 
 ## Usage
 
