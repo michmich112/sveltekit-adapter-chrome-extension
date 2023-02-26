@@ -1,3 +1,4 @@
+import staticAdapter from '@sveltejs/adapter-static';
 import { load } from "cheerio";
 import {
   createReadStream,
@@ -17,47 +18,18 @@ import zlib from "zlib";
 const pipe = promisify(pipeline);
 
 /** @type {import('.')} */
-export default function ({
-  pages = "build",
-  assets = pages,
-  fallback,
-  precompress = false,
-  manifest = "manifest.json",
-  emptyOutDir = true,
-} = {}) {
+export default function (options) {
   return {
     name: "sveltekit-adapter-chrome-extension",
 
     async adapt(builder) {
-      if (emptyOutDir) {
-        builder.rimraf(assets);
-        builder.rimraf(pages);
-      }
-
-      builder.writeClient(assets);
-
-      builder.writePrerendered(pages, { fallback });
-
-      if (precompress) {
-        if (pages === assets) {
-          builder.log.minor("Compressing assets and pages");
-          await compress(assets);
-        } else {
-          builder.log.minor("Compressing assets");
-          await compress(assets);
-
-          builder.log.minor("Compressing pages");
-          await compress(pages);
-        }
-      }
-
-      if (pages === assets) {
-        builder.log(`Wrote site to "${pages}"`);
-      } else {
-        builder.log(`Wrote pages to "${pages}" and assets to "${assets}"`);
-      }
+      staticAdapter(options).adapt(builder);
 
       /* extension */
+      const pages = options?.pages ?? "build";
+      const assets = options?.assets ?? pages;
+      const manifest = options?.manifest ?? "manifest.json";
+
       await removeInlineScripts(assets, builder.log);
 
       await removeAppManifest(assets, builder.config.kit.appDir, builder.log);
