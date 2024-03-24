@@ -27,6 +27,6 @@
     "tiny-glob": "^0.2.9"
   },
   "peerDependencies": {
-    "@sveltejs/adapter-static": "^2.0.1"
+    "@sveltejs/adapter-static": "^3.0.1"
   }
 }
