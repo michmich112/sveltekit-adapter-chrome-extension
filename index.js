@@ -84,13 +84,11 @@ async function removeInlineScripts(directory, log) {
   const files = await glob("**/*.{html}", {
     cwd: directory,
     dot: true,
-    aboslute: true,
+    absolute: true,
     filesOnly: true,
   });
 
-  files
-    .map((f) => join(directory, f))
-    .forEach((file) => {
+  files.forEach((file) => {
       log.minor(`file: ${file}`);
       const f = readFileSync(file);
       const $ = load(f.toString());
