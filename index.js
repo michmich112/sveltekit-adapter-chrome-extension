@@ -9,7 +9,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from "fs";
-import { join, dirname } from "path";
+import { dirname, join } from "path";
 import { pipeline } from "stream";
 import glob from "tiny-glob";
 import { promisify } from "util";
@@ -106,15 +106,15 @@ async function removeInlineScripts(directory, log) {
       const innerScript = node.children[0].data;
       const fullTag = $("script").toString();
       //get new filename
-      const fn = `script-${hash(innerScript)}.js`;
+      const hashedName = `script-${hash(innerScript)}.js`;
       //remove from orig html file and replace with new script tag
       const newHtml = f
         .toString()
-        .replace(fullTag, `<script ${attribs} src="${fn}"></script>`);
+        .replace(fullTag, `<script ${attribs} src="${hashedName}"></script>`);
       writeFileSync(file, newHtml);
       log.minor(`Rewrote ${file}`);
 
-      const p = `${dirname(file)}/${fn}`;
+      const p = `${dirname(file)}/${hashedName}`;
       writeFileSync(p, innerScript);
       log.success(`Inline script extracted and saved at: ${p}`);
     });
