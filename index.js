@@ -103,7 +103,7 @@ async function removeInlineScripts(directory, log) {
         (a, c) => a + `${c}="${node.attribs[c]}" `,
         ""
       );
-      const innerScript = node.children[0].data;
+      const innerScript = node.children[0].data.replace(/[\t\n]/g, "");
       const fullTag = $("script").toString();
       //get new filename
       const hashedName = `script-${hash(innerScript)}.js`;
