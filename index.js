@@ -11,7 +11,7 @@ import {
 } from "fs";
 import { dirname, join } from "path";
 import { pipeline } from "stream";
-import glob from "tiny-glob";
+import { glob } from "tinyglobby";
 import { promisify } from "util";
 import zlib from "zlib";
 
@@ -64,7 +64,7 @@ async function removeAppManifest(directory, appDir, log) {
     cwd: directory,
     dot: true,
     absolute: true,
-    filesOnly: true,
+    onlyFiles: true,
   });
 
   files.forEach((path) => {
@@ -85,10 +85,11 @@ async function removeInlineScripts(directory, log) {
     cwd: directory,
     dot: true,
     absolute: true,
-    filesOnly: true,
+    onlyFiles: true,
   });
 
-  files.forEach((file) => {
+  files
+    .forEach((file) => {
       log.minor(`file: ${file}`);
       const f = readFileSync(file);
       const $ = load(f.toString());
@@ -146,7 +147,7 @@ async function compress(directory) {
     cwd: directory,
     dot: true,
     absolute: true,
-    filesOnly: true,
+    onlyFiles: true,
   });
 
   await Promise.all(

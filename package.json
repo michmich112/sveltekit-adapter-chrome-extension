@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",
-    "tiny-glob": "^0.2.9"
+    "tinyglobby": "^0.2.16"
   },
   "peerDependencies": {
     "@sveltejs/adapter-static": "^3.0.1"
