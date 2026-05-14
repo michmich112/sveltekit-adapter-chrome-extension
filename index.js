@@ -4,6 +4,7 @@ import {
   createReadStream,
   createWriteStream,
   existsSync,
+  mkdirSync,
   readFileSync,
   statSync,
   unlinkSync,
@@ -81,6 +82,7 @@ async function removeAppManifest(directory, appDir, log) {
 
 async function removeInlineScripts(directory, log) {
   log("Removing Inline Scripts");
+
   const files = await glob("**/*.{html}", {
     cwd: directory,
     dot: true,
@@ -88,34 +90,61 @@ async function removeInlineScripts(directory, log) {
     filesOnly: true,
   });
 
-  files.forEach((file) => {
-      log.minor(`file: ${file}`);
-      const f = readFileSync(file);
-      const $ = load(f.toString());
-      const node = $("script").get()[0];
+  for (const file of files) {
+    log.minor(`Processing file: ${file}`);
 
-      if (!node) return;
-      if (Object.keys(node.attribs).includes("src")) return; // if there is a src, it's not an inline script
+    // Ensure the file exists
+    if (!existsSync(file)) {
+      log.warn(`Skipping missing file: ${file}`);
+      continue;
+    }
 
-      const attribs = Object.keys(node.attribs).reduce(
+    const html = readFileSync(file, "utf-8");
+    const $ = load(html);
+    const scriptNodes = $("script").get();
+
+    if (scriptNodes.length === 0) continue;
+
+    let modified = false;
+    let scriptIndex = 0;
+
+    for (const node of scriptNodes) {
+      // Skip external scripts (those with src attribute)
+      if (node.attribs && "src" in node.attribs) continue;
+
+      const scriptContent =
+        node.children && node.children[0] && node.children[0].data
+          ? node.children[0].data.trim()
+          : "";
+
+      if (!scriptContent) continue;
+
+      const attribs = Object.keys(node.attribs || {}).reduce(
         (a, c) => a + `${c}="${node.attribs[c]}" `,
         ""
       );
-      const innerScript = node.children[0].data;
-      const fullTag = $("script").toString();
-      //get new filename
-      const hashedName = `script-${hash(innerScript)}.js`;
-      //remove from orig html file and replace with new script tag
-      const newHtml = f
-        .toString()
-        .replace(fullTag, `<script ${attribs} src="${hashedName}"></script>`);
-      writeFileSync(file, newHtml);
-      log.minor(`Rewrote ${file}`);
 
-      const p = `${dirname(file)}/${hashedName}`;
-      writeFileSync(p, innerScript);
-      log.success(`Inline script extracted and saved at: ${p}`);
-    });
+      const scriptHash = hash(scriptContent);
+      const scriptFilename = `script-${scriptIndex}-${scriptHash}.js`;
+      const scriptPath = join(directory, scriptFilename);
+
+      // Make sure directory exists (avoid ENOENT)
+      mkdirSync(dirname(scriptPath), { recursive: true });
+
+      // Replace inline script with external file reference
+      $(node).replaceWith(`<script ${attribs}src="/${scriptFilename}"></script>`);
+      writeFileSync(scriptPath, scriptContent);
+      log.success(`Extracted inline script -> ${scriptPath}`);
+
+      modified = true;
+      scriptIndex++;
+    }
+
+    if (modified) {
+      writeFileSync(file, $.html());
+      log.minor(`Rewrote HTML file: ${file}`);
+    }
+  }
 }
 
 function reWriteExtensionManifest(directory, manifest, builder) {
